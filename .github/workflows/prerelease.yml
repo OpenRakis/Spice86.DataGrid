@@ -1,0 +1,37 @@
+name: pre-release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine prerelease version
+        run: |
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          echo "PRERELEASE_VERSION=0.1.0-${COMMIT_SHA}" >> $GITHUB_ENV
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Pack prerelease NuGet package
+        run: dotnet pack ./src/Spice86.DataGrid/Avalonia.Controls.DataGrid/Avalonia.Controls.DataGrid.csproj --configuration Release --include-symbols --include-source -p:PackageVersion=${PRERELEASE_VERSION} -p:SymbolPackageFormat=snupkg -p:NoWarn=1591%3BNU5104%3BNU1507
+
+      - name: Publish prerelease package to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE_VERSION: ${{ env.PRERELEASE_VERSION }}
+        run: |
+          dotnet nuget push ./src/Spice86.DataGrid/Avalonia.Controls.DataGrid/bin/Release/Spice86.DataGrid.${PRERELEASE_VERSION}.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key ${GITHUB_TOKEN} --skip-duplicate

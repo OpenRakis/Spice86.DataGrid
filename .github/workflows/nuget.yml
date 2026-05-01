@@ -1,0 +1,32 @@
+name: Test and Publish NuGet
+
+# Trigger the workflow on push to master
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Package NuGet
+        run: dotnet pack Spice86.DataGrid.slnx --include-symbols --include-source --configuration Release -p:NoWarn=1591
+
+      - name: Upload NuGet Spice86.DataGrid
+        if: github.ref == 'refs/heads/main' && matrix.os == 'ubuntu-latest'
+        working-directory: ./src/Spice86.DataGrid/Avalonia.Controls.DataGrid/bin/Release
+        run: dotnet nuget push Spice86.DataGrid.*.nupkg --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
