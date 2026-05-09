@@ -22,7 +22,16 @@ namespace Avalonia.Controls.Utils
                 return null;
             }
 
-            MethodInfo getFocusedElementMethod = focusManager.GetType().GetMethod("GetFocusedElement", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            // Use the overload that takes an explicit Type[] of parameters to disambiguate
+            // between multiple GetFocusedElement overloads exposed by newer Avalonia versions
+            // (Avalonia 12+ adds a GetFocusedElement(...) overload, which makes the lookup
+            // by name alone throw AmbiguousMatchException).
+            MethodInfo getFocusedElementMethod = focusManager.GetType().GetMethod(
+                "GetFocusedElement",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                binder: null,
+                types: Type.EmptyTypes,
+                modifiers: null);
             if (getFocusedElementMethod != null)
             {
                 return getFocusedElementMethod.Invoke(focusManager, null) as Visual;
