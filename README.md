@@ -34,7 +34,7 @@ The `Spice86.DataGrid` package includes:
 
 The package readme bundled in NuGet is:
 
-- `/home/runner/work/Spice86.DataGrid/Spice86.DataGrid/src/Spice86.DataGrid/Avalonia.Controls.DataGrid/README.md`
+- `src/Spice86.DataGrid/Avalonia.Controls.DataGrid/README.md`
 
 ## Target framework and dependencies
 
@@ -96,9 +96,9 @@ Or define columns explicitly:
 
 ## Repository layout
 
-- `/home/runner/work/Spice86.DataGrid/Spice86.DataGrid/src/Spice86.DataGrid/Avalonia.Controls.DataGrid`  
+- `src/Spice86.DataGrid/Avalonia.Controls.DataGrid`  
   Main library project and all DataGrid sources/resources
-- `/home/runner/work/Spice86.DataGrid/Spice86.DataGrid/.github/workflows`  
+- `.github/workflows`  
   CI, package publish, prerelease and CodeQL workflows
 
 ## Local development
