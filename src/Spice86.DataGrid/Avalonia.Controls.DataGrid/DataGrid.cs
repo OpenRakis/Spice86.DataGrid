@@ -3996,6 +3996,14 @@ namespace Avalonia.Controls
         }
 
         //TODO: Make override?
+        // Selects the logical Parent first (so popups walk out of their host), then falls back
+        // to the visual parent. Declared as a static method so it can be passed as a delegate
+        // without capturing 'this'.
+        internal static Visual GetVisualParentForFocusWalk(Visual visual)
+        {
+            return (visual?.Parent as Visual) ?? visual?.GetVisualParent();
+        }
+
         private void DataGrid_LostFocus(object sender, RoutedEventArgs e)
         {
             _focusedObject = null;
@@ -4006,27 +4014,22 @@ namespace Avalonia.Controls
                 Visual focusedObject = AvaloniaInternalCompatibilityHelper.GetFocusedElement(this);
                 DataGridColumn editingColumn = null;
 
-                while (focusedObject != null)
+                // Walk up the visual tree using a cycle-safe enumerator to avoid infinite loops
+                // when the visual parent chain contains a cycle (can happen with popups / detached visuals).
+                foreach (Visual ancestor in VisualParentWalker.EnumerateUniqueAncestors<Visual>(focusedObject, GetVisualParentForFocusWalk))
                 {
-                    if (focusedObject == this)
+                    if (ancestor == this)
                     {
                         focusLeftDataGrid = false;
                         break;
                     }
 
-                    // Walk up the visual tree.  If we hit the root, try using the framework element's
-                    // parent.  We do this because Popups behave differently with respect to the visual tree,
-                    // and it could have a parent even if the VisualTreeHelper doesn't find it.
-                    var parent = focusedObject.Parent as Visual;
-                    if (parent == null)
-                    {
-                        parent = focusedObject.GetVisualParent();
-                    }
-                    else
+                    // If the ancestor has a logical Parent (Popups behave differently w.r.t. the visual tree),
+                    // the DataGrid will not receive the routed event for this focus change.
+                    if (ancestor?.Parent as Visual != null)
                     {
                         dataGridWillReceiveRoutedEvent = false;
                     }
-                    focusedObject = parent;
                 }
 
                 if (EditingRow != null && EditingColumnIndex != -1)

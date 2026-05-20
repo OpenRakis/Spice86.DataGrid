@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="src/Spice86.DataGrid/Avalonia.Controls.DataGrid/Avalonia.Controls.DataGrid.csproj" />
+  <Project Path="src/Spice86.DataGrid/Spice86.DataGrid.Tests/Spice86.DataGrid.Tests.csproj" />
 </Solution>

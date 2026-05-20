@@ -21,4 +21,8 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Spice86.DataGrid.Tests" />
+  </ItemGroup>
 </Project>
